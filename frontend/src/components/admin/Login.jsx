@@ -34,18 +34,15 @@ const Login = () => {
       let errorMessage = 'Something went wrong';
 
       if (err.response) {
-        // Case 1: Server ne jawab diya par error (e.g., Wrong Password)
         console.error("❌ Server Error Data:", err.response.data);
         console.error("❌ Status Code:", err.response.status);
         errorMessage = err.response.data?.message || 'Invalid Credentials';
       } 
       else if (err.request) {
-        // Case 2: Request gayi par server se jawab nahi aaya (Network Error)
         console.error("⚠️ No Response (Network Error):", err.request);
         errorMessage = "Network Error: Server response nahi de raha. (Shayad Render Server Sleep mode mein hai, please backend link open karke check karein)";
       } 
       else {
-        // Case 3: Code fat gaya request bhejte waqt
         console.error("⚠️ Request Setup Error:", err.message);
         errorMessage = `Error: ${err.message}`;
       }
