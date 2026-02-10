@@ -106,9 +106,9 @@ const Hero = ({ isDark }) => {
         />
       )}
 
-     
+      
       {/* 1. HEADER SECTION       */}
-     
+      
       <header className="flex justify-between items-start z-10 relative mb-20 md:mb-0">
         <div className="flex items-center gap-5">
           <div className={`w-14 h-14 rounded-full overflow-hidden border-2 p-0.5 transition-colors duration-500 ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}>
@@ -138,7 +138,7 @@ const Hero = ({ isDark }) => {
 
       
       {/* 2. HERO TEXT            */}
-     
+      
       <div className="flex-1 flex flex-col justify-center relative z-10 mt-12 mb-20 md:my-24">
         <h2 className={`text-5xl md:text-7xl lg:text-[6rem] font-bold tracking-[-0.03em] leading-[1.1] transition-colors duration-500 ${isDark ? 'text-white' : 'text-black'}`}>
           I'm building <br />
@@ -161,10 +161,10 @@ const Hero = ({ isDark }) => {
 
       
       {/* 3. MARQUEE (INFINITE)   */}
-     
+      {/* CHANGED SPEED FROM 20s TO 4s (5x FASTER) */}
       <div className={`py-6 overflow-hidden border-y transform -rotate-1 origin-left w-[120%] -ml-8 backdrop-blur-sm relative z-20
           ${isDark ? 'bg-zinc-900/50 border-zinc-800' : 'bg-zinc-50 border-zinc-200'}`}>
-         <div className="flex gap-16 animate-[marquee_20s_linear_infinite] whitespace-nowrap">
+         <div className="flex gap-16 animate-[marquee_4s_linear_infinite] whitespace-nowrap">
             {[1,2,3,4,5,6].map(i => (
                <React.Fragment key={i}>
                   <div className="flex items-center gap-6">
@@ -180,7 +180,7 @@ const Hero = ({ isDark }) => {
 
     
       {/* 4. ABOUT SECTION        */}
-     
+      
       <section id="about" className="relative z-10 py-32 border-t border-zinc-800/30">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#00de51]/30 bg-[#00de51]/10 backdrop-blur-md mb-8">
            <span className="w-2 h-2 rounded-full bg-[#00de51] animate-pulse shadow-[0_0_10px_#00de51]"></span>
@@ -216,7 +216,7 @@ const Hero = ({ isDark }) => {
 
      
       {/* 5. DYNAMIC EXP & EDU    */}
-     
+      
       <section className="relative z-10 py-20 border-t border-zinc-800/30">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
           
@@ -354,9 +354,9 @@ const Hero = ({ isDark }) => {
          ) : <div className="text-center py-20 text-zinc-500">No projects added yet.</div>}
       </section>
 
-     
+      
       {/* 7. TECH STACK           */}
-     
+      
       <section className="relative z-10 py-20 border-t border-zinc-800/30">
          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
             <div>
@@ -398,7 +398,7 @@ const Hero = ({ isDark }) => {
 
       
       {/* 8. CONTACT FORM         */}
-     
+      
       <section id="contact" className="relative z-10 py-20 border-t border-zinc-800/30">
          <div className={`relative overflow-hidden rounded-[2.5rem] p-8 md:p-16 border transition-all duration-500
             ${isDark ? 'bg-zinc-900/40 border-zinc-800/50' : 'bg-white border-zinc-200 shadow-2xl'}`}>
