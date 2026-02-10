@@ -12,19 +12,45 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
+    
+    console.log("🔵 Attempting Login..."); // Debug log
+
     try {
       // API call to backend
       const res = await API.post('/auth/login', { username, password });
       
+      console.log("✅ Login Success:", res.data); // Debug log
+
       // Save token
       localStorage.setItem('token', res.data.token);
       
       // Success
-      alert('Login Success!');
+      alert('Login Success! 🚀');
       navigate('/admin/dashboard');
+
     } catch (err) {
-      console.error("Login Error:", err);
-      alert(err.response?.data?.message || 'Invalid Credentials or Server Error');
+      console.error("💥 LOGIN ERROR DETAILS:", err);
+
+      let errorMessage = 'Something went wrong';
+
+      if (err.response) {
+        // Case 1: Server ne jawab diya par error (e.g., Wrong Password)
+        console.error("❌ Server Error Data:", err.response.data);
+        console.error("❌ Status Code:", err.response.status);
+        errorMessage = err.response.data?.message || 'Invalid Credentials';
+      } 
+      else if (err.request) {
+        // Case 2: Request gayi par server se jawab nahi aaya (Network Error)
+        console.error("⚠️ No Response (Network Error):", err.request);
+        errorMessage = "Network Error: Server response nahi de raha. (Shayad Render Server Sleep mode mein hai, please backend link open karke check karein)";
+      } 
+      else {
+        // Case 3: Code fat gaya request bhejte waqt
+        console.error("⚠️ Request Setup Error:", err.message);
+        errorMessage = `Error: ${err.message}`;
+      }
+
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }

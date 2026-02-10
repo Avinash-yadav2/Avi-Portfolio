@@ -4,65 +4,53 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
 const fs = require('fs'); 
-
-// Import Routes
+// Routes imports
 const contactRoutes = require('./routes/contactRoutes');
 const authRoutes = require('./routes/authRoutes');
 const projectRoutes = require('./routes/projectRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 
 dotenv.config();
-
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// --- STEP 1: CORS SETUP (Simple & Strong) ---
+// --- 1. DEBUG LOGGER (Ye bataayega request aa rahi hai ya nahi) ---
+app.use((req, res, next) => {
+  console.log(`🔎 [INCOMING REQUEST]`);
+  console.log(`   METHOD: ${req.method}`);
+  console.log(`   URL: ${req.url}`);
+  console.log(`   ORIGIN: ${req.headers.origin || 'No Origin (Postman/Server)'}`);
+  next();
+});
+
+// --- 2. CORS SETUP (Sabse Important) ---
 const corsOptions = {
   origin: [
     "http://localhost:5173",
     "http://localhost:5174",
-    "https://avi-portfolio-six.vercel.app" // Aapka exact Vercel Link
+    "https://avi-portfolio-six.vercel.app" // Ensure ye URL match kare
   ],
-  credentials: true, // Cookies/Token allow karne ke liye zaroori hai
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // OPTIONS request allow karna zaroori hai
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
 };
 
-// Middleware apply karein
 app.use(cors(corsOptions));
-
-// --- STEP 2: Pre-flight Request Handle Karna ---
-// Browser pehle ek khali request bhejta hai check karne ke liye, ye usse pass karega
-app.options('*', cors(corsOptions));
+app.options('*', cors(corsOptions)); // Preflight requests ko allow karein
 
 app.use(express.json()); 
-app.use(express.urlencoded({ extended: true })); 
 
-// STATIC FOLDER
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
-}
-app.use('/uploads', express.static(uploadDir)); 
-
-// DB CONNECTION
+// --- 3. SERVER CONNECTION LOGS ---
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('🔥 MongoDB Connected Successfully!'))
-  .catch((err) => {
-      console.error('❌ MongoDB Connection Error:', err);
-      process.exit(1); 
-  });
+  .then(() => console.log('✅ MongoDB Connected'))
+  .catch((err) => console.log('❌ MongoDB Error:', err));
 
-// ROUTES
+// Routes
 app.use('/api/auth', authRoutes);       
 app.use('/api/projects', projectRoutes); 
 app.use('/api/profile', profileRoutes);  
 app.use('/api/contact', contactRoutes); 
 
-app.get('/', (req, res) => {
-  res.json({ message: "Backend is Live & CORS is Fixed!" });
-});
+app.get('/', (req, res) => res.send('Server is Running & Logging Enabled 🚀'));
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on Port: ${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 Server started on Port ${PORT}`));
