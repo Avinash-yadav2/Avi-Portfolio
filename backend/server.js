@@ -16,35 +16,23 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// --- 🛠️ DEBUGGING CORS SETUP ---
-// Ye function check karega ki request kahan se aa rahi hai
+// --- STEP 1: CORS SETUP (Simple & Strong) ---
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allowed Origins List
-    const allowedOrigins = [
-      "http://localhost:5173",
-      "http://localhost:5174",
-      "https://avi-portfolio-six.vercel.app" // Dhyan rahe: No Slash at end
-    ];
-
-    // !origin matlab Postman ya Server-to-Server request (Allow them)
-    // allowedOrigins.includes(origin) matlab Vercel ya Localhost check
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.log("🚫 CORS BLOCKED THIS ORIGIN:", origin); // Ye Render Log me dikhega
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true, // Cookies/Token headers allow karne ke liye
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://avi-portfolio-six.vercel.app" // Aapka exact Vercel Link
+  ],
+  credentials: true, // Cookies/Token allow karne ke liye zaroori hai
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // OPTIONS request allow karna zaroori hai
   allowedHeaders: ["Content-Type", "Authorization"]
 };
 
-// Middleware lagana (Sabse upar)
+// Middleware apply karein
 app.use(cors(corsOptions));
 
-// Pre-flight requests handle karna (OPTIONS request)
+// --- STEP 2: Pre-flight Request Handle Karna ---
+// Browser pehle ek khali request bhejta hai check karne ke liye, ye usse pass karega
 app.options('*', cors(corsOptions));
 
 app.use(express.json()); 
@@ -72,7 +60,7 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/contact', contactRoutes); 
 
 app.get('/', (req, res) => {
-  res.send('API is Live & CORS Fixed! 🚀');
+  res.json({ message: "Backend is Live & CORS is Fixed!" });
 });
 
 app.listen(PORT, () => {
