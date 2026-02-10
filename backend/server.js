@@ -16,30 +16,36 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-//CORS SETUP ---
-const allowedOrigins = [
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "https://avi-portfolio-six.vercel.app" //  Live Frontend
-];
+// --- 🛠️ DEBUGGING CORS SETUP ---
+// Ye function check karega ki request kahan se aa rahi hai
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allowed Origins List
+    const allowedOrigins = [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "https://avi-portfolio-six.vercel.app" // Dhyan rahe: No Slash at end
+    ];
 
-app.use(cors({
-    origin: function (origin, callback) {
-        
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            console.log("🚫 CORS Blocked Origin:", origin); // Render logs 
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
-}));
+    // !origin matlab Postman ya Server-to-Server request (Allow them)
+    // allowedOrigins.includes(origin) matlab Vercel ya Localhost check
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log("🚫 CORS BLOCKED THIS ORIGIN:", origin); // Ye Render Log me dikhega
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true, // Cookies/Token headers allow karne ke liye
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+};
 
-// Pre-flight request 
-app.options('*', cors()); 
+// Middleware lagana (Sabse upar)
+app.use(cors(corsOptions));
+
+// Pre-flight requests handle karna (OPTIONS request)
+app.options('*', cors(corsOptions));
 
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true })); 
@@ -66,7 +72,7 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/contact', contactRoutes); 
 
 app.get('/', (req, res) => {
-  res.send('API is Live & Working! 🚀');
+  res.send('API is Live & CORS Fixed! 🚀');
 });
 
 app.listen(PORT, () => {
