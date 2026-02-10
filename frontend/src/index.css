@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", sans-serif;
+  
+  --color-lime-glow: #00de51; 
+  --color-lime-dim: rgba(0, 222, 81, 0.15);
+  
+  
+  --color-surface-black: #050505;
+  --color-glass-border: rgba(255, 255, 255, 0.06);
+  --color-glass-bg: rgba(20, 20, 20, 0.4);
+  
+  
+  --animate-shimmer: shimmer 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-marquee: marquee 30s linear infinite; 
+  --animate-float: float 6s ease-in-out infinite;
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+}
+
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale; 
+  text-rendering: optimizeLegibility; 
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-surface-black);
+  color: #fff;
+  overflow-x: hidden;
+  min-height: 100vh;
+  
+  
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(0, 222, 81, 0.05), transparent 40%),
+    radial-gradient(circle at 85% 30%, rgba(255, 255, 255, 0.02), transparent 40%);
+  background-attachment: fixed;
+}
+
+
+::selection {
+  background-color: var(--color-lime-glow);
+  color: #000;
+  text-shadow: none;
+}
+
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  transition: background 0.3s;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-lime-glow);
+}
+
+
+@utility glass-panel {
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-glass-border);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+
+@utility text-glow {
+  text-shadow: 0 0 25px rgba(0, 222, 81, 0.6);
+}
+
+
+img {
+  -webkit-user-drag: none; 
+}
