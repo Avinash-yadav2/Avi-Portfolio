@@ -13,34 +13,45 @@ const profileRoutes = require('./routes/profileRoutes');
 
 dotenv.config();
 
-// Initialize App
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// --- MIDDLEWARE (Fixed CORS Settings) ---
+//CORS SETUP ---
+const allowedOrigins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://avi-portfolio-six.vercel.app" //  Live Frontend
+];
+
 app.use(cors({
-    origin: [
-        "http://localhost:5173",  // Local Development
-        "http://localhost:5174",  // Local Development (Alt Port)
-        "https://avi-portfolio-six.vercel.app" // Live Frontend URL
-    ], 
+    origin: function (origin, callback) {
+        
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            console.log("🚫 CORS Blocked Origin:", origin); // Render logs 
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"]
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
+// Pre-flight request 
+app.options('*', cors()); 
 
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true })); 
 
-// STATIC FOLDER SETUP
+// STATIC FOLDER
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
-    console.log('📂 Created "uploads" directory automatically.');
 }
-
 app.use('/uploads', express.static(uploadDir)); 
 
-// DATABASE CONNECTION
+// DB CONNECTION
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('🔥 MongoDB Connected Successfully!'))
   .catch((err) => {
@@ -48,18 +59,16 @@ mongoose.connect(process.env.MONGO_URI)
       process.exit(1); 
   });
 
-// API ROUTES
+// ROUTES
 app.use('/api/auth', authRoutes);       
 app.use('/api/projects', projectRoutes); 
 app.use('/api/profile', profileRoutes);  
 app.use('/api/contact', contactRoutes); 
 
-// TEST ROUTE (To check if backend is live)
 app.get('/', (req, res) => {
-  res.send('API is Running Smoothly... 🚀');
+  res.send('API is Live & Working! 🚀');
 });
 
-// START SERVER
 app.listen(PORT, () => {
   console.log(`🚀 Server running on Port: ${PORT}`);
 });
