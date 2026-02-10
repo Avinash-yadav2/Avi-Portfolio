@@ -16,22 +16,25 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// --- STEP 1: CORS SETUP 
+// --- 🔒 SECURITY FIX: Hide Server Info ---
+app.disable('x-powered-by');
+
+// --- STEP 1: CORS SETUP (Fixed) ---
 const corsOptions = {
   origin: [
     "http://localhost:5173",
     "http://localhost:5174",
-    "https://avi-portfolio-six.vercel.app"
+    "https://avi-portfolio-six.vercel.app" // Aapka Live URL
   ],
-  credentials: true, // 
+  credentials: true, 
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], 
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"]
 };
 
 // Middleware apply karein
 app.use(cors(corsOptions));
 
-
+// Pre-flight requests (OPTIONS) ko handle karna zaroori hai
 app.options('*', cors(corsOptions));
 
 app.use(express.json()); 
@@ -46,7 +49,7 @@ app.use('/uploads', express.static(uploadDir));
 
 // DB CONNECTION
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('🔥 MongoDB Connected Successfully!'))
+  .then(() => console.log('✅ MongoDB Connected Successfully!'))
   .catch((err) => {
       console.error('❌ MongoDB Connection Error:', err);
       process.exit(1); 
@@ -59,7 +62,7 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/contact', contactRoutes); 
 
 app.get('/', (req, res) => {
-  res.json({ message: "Backend is Live & CORS is Fixed!" });
+  res.json({ message: "Backend is Live & CORS is Fixed! 🚀" });
 });
 
 app.listen(PORT, () => {
