@@ -17,12 +17,12 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// --- MIDDLEWARE 
+// --- MIDDLEWARE (Fixed CORS Settings) ---
 app.use(cors({
     origin: [
-        "http://localhost:5173",  
-        "http://localhost:5174",  
-        "https://avi-portfolio-six.vercel.app" 
+        "http://localhost:5173",  // Local Development
+        "http://localhost:5174",  // Local Development (Alt Port)
+        "https://avi-portfolio-six.vercel.app" // Live Frontend URL
     ], 
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"]
