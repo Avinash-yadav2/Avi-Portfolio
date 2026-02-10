@@ -1,46 +1,48 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors'); // CORS Import
 const dotenv = require('dotenv');
 const path = require('path');
 const fs = require('fs'); 
-
-// Import Routes
+// Routes
 const contactRoutes = require('./routes/contactRoutes');
 const authRoutes = require('./routes/authRoutes');
 const projectRoutes = require('./routes/projectRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 
 dotenv.config();
-
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// --- 🔥 FINAL CORS FIX (Allow Everything) ---
-// Hum 'origin: true' use karenge. Iska matlab: "Jo bhi site request bheje, usse haan bol do."
-app.use(cors({
-  origin: true, 
-  credentials: true, // Cookies/Token allow karega
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-}));
+// --- 🔥 NUCLEAR CORS FIX (MANUAL HEADERS) ---
+// Hum kisi package par bharosa nahi karenge, khud headers set karenge
+app.use((req, res, next) => {
+  // Aapka Frontend URL (Exact match hona chahiye)
+  const allowedOrigin = "https://avi-portfolio-six.vercel.app";
+  
+  res.header("Access-Control-Allow-Origin", allowedOrigin);
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Credentials", "true"); // Cookies allow
 
-// Pre-flight requests ko bhi forcefully handle karein
-app.options('*', cors());
+  // Agar browser OPTIONS request bheje (Pre-flight check), toh turant HAAN bol do
+  if (req.method === "OPTIONS") {
+    return res.status(200).json({});
+  }
+  next();
+});
 
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true })); 
 
-// STATIC FOLDER
+// Static Folder
 const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
-}
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
 app.use('/uploads', express.static(uploadDir)); 
 
-// SERVER CONNECTION LOGS
+// Database
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected'))
-  .catch((err) => console.log('❌ MongoDB Error:', err));
+  .catch((err) => console.error('❌ MongoDB Connection Error:', err));
 
 // Routes
 app.use('/api/auth', authRoutes);       
@@ -48,10 +50,6 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/profile', profileRoutes);  
 app.use('/api/contact', contactRoutes); 
 
-app.get('/', (req, res) => {
-  res.send('Server is LIVE & Allowing All Origins! 🚀');
-});
+app.get('/', (req, res) => res.send('Backend is Working with Manual CORS 🚀'));
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on Port: ${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 Server running on Port: ${PORT}`));
