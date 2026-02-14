@@ -2,31 +2,28 @@ const express = require('express');
 const router = express.Router();
 const Project = require('../models/Project');
 const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('cloudinary').v2;
 
-//MULTER CONFIG
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadPath = 'uploads/';
-    // Create folder if it doesn't exist
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true });
-    }
-    cb(null, uploadPath);
-  },
-  filename: (req, file, cb) => {
-    cb(null, `project-${Date.now()}${path.extname(file.originalname)}`);
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'portfolio_projects',
+    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+    transformation: [{ width: 800, crop: "limit" }]
   }
 });
 
 const upload = multer({ storage: storage });
 
-//GET ALL PROJECTS (Public)
-// GET /api/projects
 router.get('/', async (req, res) => {
   try {
-    // Sort by newest first
     const projects = await Project.find().sort({ createdAt: -1 });
     res.json(projects);
   } catch (err) {
@@ -34,17 +31,13 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ADD NEW PROJECT (Admin)
-// POST /api/projects
 router.post('/', upload.single('image'), async (req, res) => {
   const { title, description, techStack, liveLink, repoLink } = req.body;
 
-  // Validate Image
   if (!req.file) {
     return res.status(400).json({ message: "Project Image is required" });
   }
 
-  // Convert "React, Node" string -> Array ["React", "Node"]
   let techArray = techStack;
   if (typeof techStack === 'string') {
      techArray = techStack.split(',').map(t => t.trim());
@@ -56,7 +49,7 @@ router.post('/', upload.single('image'), async (req, res) => {
     techStack: techArray,
     liveLink,
     repoLink,
-    image: req.file.path.replace(/\\/g, "/") // Fix Windows paths
+    image: req.file.path
   });
 
   try {
@@ -67,25 +60,18 @@ router.post('/', upload.single('image'), async (req, res) => {
   }
 });
 
-// --- 4. DELETE PROJECT 
-// DELETE /api/projects/:id
 router.delete('/:id', async (req, res) => {
   try {
-    // 1. Find Project by ID
     const project = await Project.findById(req.params.id);
     if (!project) {
         return res.status(404).json({ message: "Project not found" });
     }
 
-    // 2. Delete Image File from 'uploads'
     if (project.image) {
-        const imagePath = path.join(__dirname, '../', project.image);
-        if (fs.existsSync(imagePath)) {
-            fs.unlinkSync(imagePath); 
-        }
+        const publicId = project.image.split('/').pop().split('.')[0];
+        await cloudinary.uploader.destroy(`portfolio_projects/${publicId}`);
     }
 
-    // 3. Delete from Database
     await Project.deleteOne({ _id: req.params.id });
     
     res.json({ message: "Project Deleted Successfully" });

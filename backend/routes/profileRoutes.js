@@ -1,30 +1,26 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('cloudinary').v2;
 const Profile = require('../models/Profile');
 
-//MULTER CONFIG
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadPath = 'uploads/';
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true });
-    }
-    cb(null, uploadPath);
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'portfolio_profile',
+    allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'pdf']
   }
 });
 
-const upload = multer({ storage: storage }).fields([
-  { name: 'profileImage', maxCount: 1 }, 
-  { name: 'resume', maxCount: 1 }
-]);
+const upload = multer({ storage: storage });
 
-//GET PROFILE
 router.get('/', async (req, res) => {
   try {
     let profile = await Profile.findOne();
@@ -39,8 +35,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-//UPDATE PROFILE
-router.post('/', upload, async (req, res) => {
+router.post('/', upload.fields([{ name: 'profileImage', maxCount: 1 }, { name: 'resume', maxCount: 1 }]), async (req, res) => {
   try {
     const { 
         name, bio, roles, 
@@ -51,17 +46,13 @@ router.post('/', upload, async (req, res) => {
     let profile = await Profile.findOne();
     if (!profile) profile = new Profile();
 
-    // Text & Basic Info
     if (name) profile.name = name;
     if (bio) profile.bio = bio;
     
     if (roles) {
-       profile.roles = typeof roles === 'string' 
-         ? roles.split(',').map(r => r.trim()) 
-         : roles;
+       profile.roles = typeof roles === 'string' ? roles.split(',').map(r => r.trim()) : roles;
     }
 
-    // Socials
     profile.socials = {
       linkedin: linkedin || profile.socials?.linkedin || "",
       github: github || profile.socials?.github || "",
@@ -70,7 +61,6 @@ router.post('/', upload, async (req, res) => {
       email: email || profile.socials?.email || "",
     };
 
-    //ARRAY PARSING
     if (experience) {
         try { profile.experience = JSON.parse(experience); } catch(e) { console.error("Exp Parse Error", e); }
     }
@@ -81,12 +71,11 @@ router.post('/', upload, async (req, res) => {
         try { profile.techStack = JSON.parse(techStack); } catch(e) { console.error("Tech Parse Error", e); }
     }
 
-    // Files
     if (req.files['profileImage']) {
-      profile.profileImage = req.files['profileImage'][0].path.replace(/\\/g, "/");
+      profile.profileImage = req.files['profileImage'][0].path;
     }
     if (req.files['resume']) {
-      profile.resume = req.files['resume'][0].path.replace(/\\/g, "/");
+      profile.resume = req.files['resume'][0].path;
     }
 
     await profile.save();
