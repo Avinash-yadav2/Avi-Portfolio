@@ -4,23 +4,30 @@ const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('cloudinary').v2;
 const Profile = require('../models/Profile');
+const dotenv = require('dotenv');
 
+dotenv.config();
+
+// CLOUDINARY CONFIG
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+// STORAGE SETUP
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'portfolio_profile',
+    resource_type: 'auto', 
     allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'pdf']
   }
 });
 
 const upload = multer({ storage: storage });
 
+// GET ROUTE
 router.get('/', async (req, res) => {
   try {
     let profile = await Profile.findOne();
@@ -35,6 +42,7 @@ router.get('/', async (req, res) => {
   }
 });
 
+// POST ROUTE
 router.post('/', upload.fields([{ name: 'profileImage', maxCount: 1 }, { name: 'resume', maxCount: 1 }]), async (req, res) => {
   try {
     const { 
@@ -71,6 +79,7 @@ router.post('/', upload.fields([{ name: 'profileImage', maxCount: 1 }, { name: '
         try { profile.techStack = JSON.parse(techStack); } catch(e) { console.error("Tech Parse Error", e); }
     }
 
+    // CLOUDINARY 
     if (req.files['profileImage']) {
       profile.profileImage = req.files['profileImage'][0].path;
     }
