@@ -5,7 +5,7 @@ import {
   Terminal, Layers, Cpu, Sparkles
 } from 'lucide-react';
 import API, { BASE_URL } from '../api'; 
-import avi from '../assets/avi.jpg'; 
+import avi from '../assets/avi.png'; 
 
 const Hero = ({ isDark }) => {
   const [time, setTime] = useState(new Date());
