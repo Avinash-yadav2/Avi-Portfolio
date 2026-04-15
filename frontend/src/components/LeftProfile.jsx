@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Linkedin, Github, Twitter, Instagram, Download, ArrowUpRight, Hexagon, Mail } from 'lucide-react';
 import API, { BASE_URL } from '../api'; 
-import avi from '../assets/avi.jpg'; 
+import avi from '../assets/avi.png'; 
 
 const LeftProfile = ({ isDark }) => {
   
