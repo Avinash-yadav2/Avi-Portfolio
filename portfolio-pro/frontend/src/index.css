@@ -1,0 +1,52 @@
+/* src/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* Import Tailwind v4 */
+@import "tailwindcss";
+
+/* Define our custom theme variables directly in CSS */
+@theme {
+  --font-sans: "Inter", sans-serif;
+  --color-brand-green: #00de51;
+  --color-brand-dark: #09090b;
+
+  --animate-marquee: marquee 4s linear infinite;
+  --animate-shimmer: shimmer 2s infinite;
+
+  @keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+  }
+  
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+}
+
+/* Base Styles & Manual Dark Mode Setup */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply antialiased text-zinc-900 bg-zinc-50 transition-colors duration-500;
+  }
+  body.dark {
+    @apply text-white bg-[#050505];
+  }
+}
+
+/* Custom Premium Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-zinc-300 rounded-full dark:bg-zinc-800 transition-colors;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-[#00de51];
+}
